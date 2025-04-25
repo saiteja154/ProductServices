@@ -5,6 +5,9 @@ import org.saiteja.productservice.models.Category;
 import org.saiteja.productservice.models.Product;
 import org.saiteja.productservice.repositories.CategoryRepository;
 import org.saiteja.productservice.repositories.ProductRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -65,4 +68,28 @@ public class SelfProductService implements ProductService{
 
         return createdProduct;
     }
+
+
+    @Cacheable(value = "users")
+    public List<Product> getListOfUsers(){
+        return productRepository.findAll();
+    }
+
+
+    @Cacheable(value = "users",key = "#id")
+    public Product getUserById(Long id){
+        return productRepository.findById(id).orElse(null);
+    }
+
+    @CachePut(value = "users",key = "#user.id")
+    public Product saveUser(Product user){
+        return productRepository.save(user);
+    }
+
+    @CacheEvict(value = "users",key="#id")
+    public void deleteUser(Long id){
+        productRepository.deleteById(id);
+    }
+
+
 }
